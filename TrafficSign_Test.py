@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import pickle
+import pyttsx3
 
 # Constants
 frameWidth = 640
@@ -18,6 +19,9 @@ cap.set(10, brightness)
 # Load the trained model
 pickle_in = open("model_trained.p", "rb")
 model = pickle.load(pickle_in)
+
+# Initialize the text-to-speech engine
+engine = pyttsx3.init()
 
 def grayscale(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -50,6 +54,9 @@ def getClassName(classNo):
     ]
     return classes[classNo] if classNo < len(classes) else "Unknown"
 
+# Variable to store the last spoken class to avoid repetition
+last_spoken_class = None
+
 while True:
     # Read image
     success, imgOriginal = cap.read()
@@ -69,10 +76,17 @@ while True:
 
     # Display results
     if probabilityValue > threshold:
-        cv2.putText(imgOriginal, f"CLASS: {classIndex} {getClassName(classIndex)}",
+        class_name = getClassName(classIndex)
+        cv2.putText(imgOriginal, f"CLASS: {classIndex} {class_name}",
                     (20, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.putText(imgOriginal, f"PROBABILITY: {round(probabilityValue * 100, 2)}%", 
                     (20, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
+
+        # Speak the class name if it's different from the last spoken class
+        if class_name != last_spoken_class:
+            engine.say(class_name)
+            engine.runAndWait()
+            last_spoken_class = class_name
 
     cv2.imshow("Processed Image", cv2.cvtColor(img, cv2.COLOR_GRAY2BGR))
     cv2.imshow("Result", imgOriginal)

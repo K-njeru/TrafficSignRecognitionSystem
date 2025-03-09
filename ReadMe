@@ -5,6 +5,8 @@ pip install --upgrade pandas
 pip install --upgrade matplotlib keras opencv-python scikit-learn
 pip install tensorflow
 
+pip install pyttsx3 - Text to speech engine
+
 --upgrade  -> For the latest version
 Or run: pip install --upgrade pip
 
@@ -22,5 +24,9 @@ New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name
 3. Restart your computer to apply the changes.
 4. Retry dependency installation.
 
+
+To run in powershell:
+1. python TrafficSign_Main.py
+2. python TrafficSign_Test.py
 
 

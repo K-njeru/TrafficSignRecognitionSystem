@@ -5,6 +5,8 @@ pip install --upgrade pandas
 pip install --upgrade matplotlib keras opencv-python scikit-learn
 pip install tensorflow
 
+pip install pyttsx3 - Text to speech engine
+
 --upgrade  -> For the latest version
 Or run: pip install --upgrade pip
 

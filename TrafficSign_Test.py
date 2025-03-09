@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import pickle
 import pyttsx3
+from datetime import datetime
+import pytz
 
 # Constants
 frameWidth = 640
@@ -9,6 +11,10 @@ frameHeight = 480
 brightness = 180
 threshold = 0.75
 font = cv2.FONT_HERSHEY_SIMPLEX
+
+# Driver details
+driver_name = "John"  # Pass the driver's name here
+assistant_name = "Robin"  # Name of the driving aid
 
 # Camera setup
 cap = cv2.VideoCapture(0)
@@ -22,6 +28,10 @@ model = pickle.load(pickle_in)
 
 # Initialize the text-to-speech engine
 engine = pyttsx3.init()
+
+# Variable to store the last spoken class to avoid repetition
+last_spoken_class = None
+first_detection = True  # Flag to check if it's the first detection
 
 def grayscale(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -54,8 +64,29 @@ def getClassName(classNo):
     ]
     return classes[classNo] if classNo < len(classes) else "Unknown"
 
-# Variable to store the last spoken class to avoid repetition
-last_spoken_class = None
+def get_greeting():
+    # Get current time in East Africa Time (EAT)
+    tz = pytz.timezone('Africa/Nairobi')
+    now = datetime.now(tz)
+    hour = now.hour
+
+    if 5 <= hour < 12:
+        return "Good Morning"
+    elif 12 <= hour < 18:
+        return "Good Afternoon"
+    else:
+        return "Good Evening"
+
+def estimate_distance(object_width_pixels, focal_length=500, known_width=0.5):
+    """
+    Estimate distance to the object using simple pinhole camera model.
+    object_width_pixels: Width of the object in pixels.
+    focal_length: Focal length of the camera (pre-calibrated).
+    known_width: Known width of the object in meters (e.g., average traffic sign width).
+    """
+    if object_width_pixels == 0:
+        return 0
+    return (known_width * focal_length) / object_width_pixels
 
 while True:
     # Read image
@@ -82,9 +113,18 @@ while True:
         cv2.putText(imgOriginal, f"PROBABILITY: {round(probabilityValue * 100, 2)}%", 
                     (20, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
 
+        # Estimate distance to the sign (simplified)
+        object_width_pixels = 100  # Placeholder: Replace with actual object width in pixels
+        distance = estimate_distance(object_width_pixels)
+        distance_text = f"{int(distance)} meters ahead" if distance > 0 else "ahead"
+
         # Speak the class name if it's different from the last spoken class
         if class_name != last_spoken_class:
-            engine.say(class_name)
+            if first_detection:
+                greeting = get_greeting()
+                engine.say(f"{greeting}, {driver_name}. My name is {assistant_name}, and I will be your driving aid today.")
+                first_detection = False
+            engine.say(f"Please be on the lookout for {class_name}, {distance_text}.")
             engine.runAndWait()
             last_spoken_class = class_name
 

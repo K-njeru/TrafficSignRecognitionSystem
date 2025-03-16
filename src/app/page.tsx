@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Power, Loader, UserCircle, Clock, Wifi, WifiOff } from 'lucide-react';
-import L from 'leaflet'; // Leaflet for maps
+import L from 'leaflet'; // Leaflet for map
 import 'leaflet/dist/leaflet.css'; // Leaflet CSS
 
 // System status types

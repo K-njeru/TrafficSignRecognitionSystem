@@ -1,11 +1,24 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Power, Loader, UserCircle, Clock, Wifi, WifiOff } from 'lucide-react';
-import L from 'leaflet'; // Leaflet for map
+import L from 'leaflet'; // Leaflet for maps
 import 'leaflet/dist/leaflet.css'; // Leaflet CSS
 
 // System status types
 type SystemStatus = 'disconnected' | 'connecting' | 'starting' | 'running' | 'paused' | 'stopped' | 'error';
+
+
+
+// Blue pin icon
+const BluePinIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41], // Size of the icon
+  iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
+  shadowSize: [41, 41], // Size of the shadow
+  shadowAnchor: [12, 41], // Point of the shadow which will correspond to marker's location
+  popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
+});
 
 function App() {
   const [driverName, setDriverName] = useState('');
@@ -32,8 +45,8 @@ function App() {
       }).addTo(leafletMap);
       setMap(leafletMap);
 
-      // Add a marker for the user's location
-      const marker = L.marker([51.505, -0.09]).addTo(leafletMap);
+      // Add a marker for the user's location with a blue pin
+      const marker = L.marker([51.505, -0.09], { icon: BluePinIcon }).addTo(leafletMap);
       setMarker(marker);
 
       return () => {
@@ -79,6 +92,20 @@ function App() {
     };
 
     checkBackendHealth();
+  }, []);
+
+  // Clear session storage on page reload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      sessionStorage.removeItem('messages'); // Clear messages
+      sessionStorage.setItem('status', 'disconnected'); // Set status to disconnected
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const handleStartSystem = async () => {
@@ -169,13 +196,13 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
+      <div className="bg-white p-8 border border-blue-300 rounded-lg shadow-lg w-full max-w-4xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <UserCircle className="w-10 h-10 text-gray-700" />
             <div>
-              <h1 className="text-xl font-bold text-gray-800">{driverName || 'Driver'}</h1>
+              <h1 className="text-xl font-bold text-blue-600">{driverName || 'Driver'}</h1>
               <div className="flex items-center space-x-1">
                 {getStatusIcon(systemStatus)}
                 <span className={`text-sm ${getStatusColor(systemStatus)}`}>
@@ -185,8 +212,8 @@ function App() {
             </div>
           </div>
           <div className="flex items-center space-x-2 text-gray-700">
-            <Clock className="w-5 h-5" />
-            <span className="text-sm">
+            <Clock className="w-5 h-5 text-blue-600" />
+            <span className="text-sm ">
               {currentTime.toLocaleTimeString()}
             </span>
           </div>
@@ -195,7 +222,7 @@ function App() {
         {/* System Status */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
-            Driving Aid System
+            <span className='text-4xl text-blue-600'>Robin</span> - Powered for the Open Road
           </h2>
           <div className={`text-center font-semibold capitalize ${getStatusColor(systemStatus)}`}>
             System Status: {systemStatus}
@@ -223,7 +250,7 @@ function App() {
                 placeholder="Enter your name"
                 value={driverName}
                 onChange={(e) => setDriverName(e.target.value)}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full text-black px-4 py-2 border border-blue-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -260,7 +287,7 @@ function App() {
         {/* Real-Time Map */}
         {systemStarted && (
           <div className="mt-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Your Location</h3>
+            <h3 className="text-xl font-bold text-gray-800 mb-4">My Location</h3>
             <div id="map" className="h-96 rounded-lg shadow-md"></div>
           </div>
         )}

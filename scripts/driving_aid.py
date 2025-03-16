@@ -53,6 +53,14 @@ def initialize_system():
         with open(model_path, "rb") as pickle_in:
             model = pickle.load(pickle_in)
 
+        # Initialize text-to-speech with the female voice (Microsoft Zira)
+        #engine = pyttsx3.init()
+        #voices = engine.getProperty('voices')
+        
+        # Set the female voice (Microsoft Zira)
+        #engine.setProperty('voice', voices[1].id)  # Index 1 is Microsoft Zira
+        #engine.setProperty('volume', volume_level / 100.0)
+
         # Initialize text-to-speech
         engine = pyttsx3.init()
         engine.setProperty('volume', volume_level / 100.0)

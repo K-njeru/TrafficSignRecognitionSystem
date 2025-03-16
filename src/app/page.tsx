@@ -7,8 +7,6 @@ import 'leaflet/dist/leaflet.css'; // Leaflet CSS
 // System status types
 type SystemStatus = 'disconnected' | 'connecting' | 'starting' | 'running' | 'paused' | 'stopped' | 'error';
 
-
-
 // Blue pin icon
 const BluePinIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -108,30 +106,43 @@ function App() {
     };
   }, []);
 
+  // Play greeting when status is 'running'
+  useEffect(() => {
+    if (systemStatus === 'running' && driverName) {
+      const greeting = `Welcome, ${driverName}! Your system is booting up. Just a couple more seconds.`;
+      const utterance = new SpeechSynthesisUtterance(greeting);
+      utterance.voice = speechSynthesis.getVoices().find((voice) => voice.name === 'Google US English') || null;
+      utterance.rate = 1; // Speed of speech
+      utterance.pitch = 1; // Pitch of speech
+      speechSynthesis.speak(utterance);
+    }
+  }, [systemStatus, driverName]);
+
   const handleStartSystem = async () => {
     if (!driverName) {
       setError('Please enter your name.');
       return;
     }
-
+  
     setLoading(true);
     setError('');
     setSystemStatus('starting');
-
+  
     try {
+      // Make a POST request to start the backend server
       const response = await fetch('http://localhost:5000/start', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ driver_name: driverName }),
+        body: JSON.stringify({ driver_name: driverName }), // Send the driver's name to the backend
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to start the system.');
       }
-
+  
       const data = await response.json();
       if (data.success) {
         setSystemStarted(true);

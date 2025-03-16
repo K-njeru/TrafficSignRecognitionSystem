@@ -138,7 +138,7 @@ def main():
 
         # Play greeting immediately
         greeting = get_greeting()
-        engine.say(f"{greeting}, {driver_name}. I'm {assistant_name}, your driving aid today.")
+        engine.say(f"{greeting}, {driver_name}. I'm {assistant_name}, your driving aid today. All systems are now up and running. Lets move.")
         engine.runAndWait()
 
         # Send system status to indicate the system is running

@@ -14,6 +14,9 @@ import pandas as pd
 import random
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+print("Current working directory:", os.getcwd())
+print("Script directory:", os.path.dirname(os.path.abspath(__file__)))
+
 ################# Parameters #####################
 
 path = "myData"  # Folder with all the class folders
